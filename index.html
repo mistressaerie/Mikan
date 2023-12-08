@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAI Library</title>
+    <style type="text/css">
+        /* Themes */
+        :root {
+            --body-bg: #f5f8fa;
+            --border-color: #efefef;
+            --messagebox-bg: #ffffff;
+            --messagebox-shadow: rgba(0, 0, 0, 0.1);
+            --font-color: #1f1f1f;
+            --rgba-1: rgba(0, 0, 0, 0.05);
+            --rgba-2: rgba(0, 0, 0, 0.1);
+        }
+
+        .dark_mode {
+            --body-bg: #343434;
+            --border-color: #4f4f4f;
+            --messagebox-bg: #474747;
+            --messagebox-shadow: rgba(0, 0, 0, 0);
+            --font-color: #ededed;
+            --rgba-1: rgba(255, 255, 255, 0.06);
+            --rgba-2: rgba(255, 255, 255, 0.2);
+        }
+
+
+
+        * {
+            box-sizing: border-box;
+        }
+
+        button,
+        select,
+        img {
+            user-select: none;
+        }
+
+        ol,
+        ul,
+        li,
+        a,
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        p {
+            text-decoration: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .italic {
+            font-style: italic;
+        }
+
+        .bold {
+            font-weight: bold;
+        }
+
+        .bold-italic {
+            font-weight: bold;
+            font-style: italic;
+        }
+
+        html {
+            font-size: 14px;
+        }
+
+        body {
+            padding: 0;
+            margin: 0;
+            background-color: var(--body-bg);
+            color: var(--font-color);
+        }
+
+        .content-cont {
+            display: flex;
+            flex-direction: row;
+        }
+
+
+        /* NAV / Drawer */
+
+        @keyframes slideIn {
+            0% {
+                opacity: 0;
+                left: -200px;
+            }
+
+            100% {
+                opacity: 1;
+                left: 0;
+            }
+        }
+
+        .drawer-cont.active {
+            display: block;
+        }
+
+        .drawer-cont {
+            display: none;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.6);
+        }
+
+        nav {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            max-width: 80%;
+            background-color: var(--body-bg);
+
+            display: flex;
+            flex-direction: column;
+            padding: 10px 0;
+            overflow: hidden;
+            animation: slideIn 0.2s ease-in-out;
+            -webkit-box-shadow: 4px 0px 15px 0px rgba(0, 0, 0, 0.2);
+            -moz-box-shadow: 4px 0px 15px 0px rgba(0, 0, 0, 0.2);
+            box-shadow: 4px 0px 15px 0px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-header {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 0 10px 0 20px;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+
+        .close_drawer-btn {
+            align-self: flex-end;
+            padding: 10px;
+            transition: background-color 0.1s ease-in-out;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+
+        .close_drawer-btn:hover {
+            background-color: var(--rgba-1);
+        }
+
+        .close_drawer-btn svg {
+            display: flex;
+            width: 30px;
+            height: 30px;
+            color: var(--font-color);
+        }
+
+        /*.nav-new_char-btn {
+            align-self: flex-start;
+            outline: none;
+            border: none;
+            color: #ffffff;
+            border-radius: 6px;
+            padding: 10px 20px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            background-color: #4e9733;
+            transition: background-color 0.1s ease-in-out;
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        }
+
+        .nav-new_char-btn:hover {
+            background-color: #6ba755;
+        }*/
+
+        .history_list-header {
+            font-size: 1.5rem;
+            padding: 10px 20px;
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+            margin-bottom: 10px;
+        }
+
+        .history_list {
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .history_item {
+            transition: background-color 0.1s ease-in-out;
+            padding: 20px 30px 20px 20px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--rgba-2);
+        }
+
+        .history_item:first-child {
+            border-top: 1px solid var(--rgba-2);
+        }
+
+        .history_item:hover {
+            background-color: var(--rgba-1);
+        }
+
+        .history_item p {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        /*nav .char-item {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 10px;
+            transition: background-color 0.1s ease-in-out;
+            padding: 10px 40px 10px 20px;
+            cursor: pointer;
+        }
+
+        nav .char-item:hover {
+            background-color: var(--rgba-1);
+        }
+
+        nav .nav-avatar-wrap {
+            width: 40px;
+            height: 40px;
+        }
+
+        nav .nav-avatar-wrap img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+        }
+
+        nav .char-item span {
+            font-size: 1.3rem;
+            font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+        }*/
+
+        /* MAIN */
+        main {
+            display: flex;
+            flex-direction: column;
+            padding: 0 4%;
+            width: 100%;
+        }
+
+        /* HEADER */
+        header {
+            padding: 6px 6px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .open_drawer-wrap svg {
+            display: flex;
+            width: 46px;
+            height: 46px;
+            color: var(--font-color);
+        }
+
+
+        .theme_switch {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+        }
+
+        .theme_switch span {
+            font-size: 1.1rem;
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        }
+
+        .tswitch_box[type=checkbox] {
+            height: 0;
+            width: 0;
+            visibility: hidden;
+            position: absolute;
+        }
+
+        .tswitch_label {
+            cursor: pointer;
+            text-indent: -9999px;
+            width: 60px;
+            height: 30px;
+            display: block;
+            border-radius: 15px;
+            position: relative;
+            border: 1px solid #323232;
+            background: #f5f8fa;
+        }
+
+        .tswitch_label:after {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50px;
+            transition: 0.2s;
+            background: #323232;
+        }
+
+        .tswitch_box:checked+label {
+            background: #323232;
+            border: 1px solid #f5f8fa;
+        }
+
+        .tswitch_box:checked+label:after {
+            left: calc(100% - 5px);
+            transform: translateX(-100%);
+            background: #f5f8fa;
+        }
+
+        .tswitch_label:active:after {
+            width: 25px;
+        }
+
+        /*.update_current_char-btn {
+            margin-left: auto;
+            outline: none;
+            border: none;
+            color: #ffffff;
+            border-radius: 6px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            align-self: center;
+            cursor: pointer;
+            background-color: #336c97;
+            transition: background-color 0.1s ease-in-out;
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        }
+
+        .update_current_char-btn:hover {
+            background-color: #5f829d;
+        }*/
+
+
+        /* CONVERSATION */
+        .character_name-cont {
+            text-align: center;
+            padding: 20px 10px;
+        }
+
+        .character_name-cont h3 {
+            font-size: 1.3rem;
+            font-weight: 400;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+        }
+
+        .chat {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-self: center;
+            padding-bottom: 30px;
+        }
+
+        .chat_message-item {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .chat .avatar-wrap {
+            flex-shrink: 0;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+
+        .chat .avatar-wrap>* {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+        }
+
+        .chat .avatar-wrap .no_avatar-user {
+            background-color: #5157cf;
+        }
+
+        .chat .avatar-wrap .no_avatar-char {
+            background-color: #e20909;
+        }
+
+        .chat .chat_content-wrap {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px var(--messagebox-shadow);
+            background-color: var(--messagebox-bg);
+            overflow: hidden;
+        }
+
+        .chat .chat_content-wrap h5 {
+            font-size: 1rem;
+            font-weight: bold;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .chat .chat_content-wrap .message-wrap {
+            font-size: 1rem;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+
+        @media (min-width: 576px) {}
+
+        @media (min-width: 768px) {
+            html {
+                font-size: 16px;
+            }
+
+            nav {
+                min-width: 40%;
+            }
+
+            header {
+                padding: 14px 20px;
+            }
+
+            .open_drawer-wrap {
+                padding: 4px;
+                cursor: pointer;
+                border-radius: 6px;
+                transition: background-color 0.1s ease-in-out;
+            }
+
+            .open_drawer-wrap:hover {
+                background-color: var(--rgba-1);
+            }
+
+            .chat {
+                width: 80%;
+            }
+
+            .chat .chat_content-wrap {
+                padding: 14px;
+            }
+        }
+
+        @media (min-width: 992px) {
+            .chat {
+                width: 70%;
+            }
+        }
+
+        @media (min-width: 1200px) {}
+
+        @media (min-width: 1400px) {}
+    </style>
+</head>
+
+<body>
+    <template id="message_item_template">
+        <div class="chat_message-item">
+            <div class="avatar-wrap">
+
+            </div>
+            <div class="chat_content-wrap">
+                <h5>
+
+                </h5>
+                <div class="message-wrap">
+                    <p>
+
+                    </p>
+                </div>
+            </div>
+        </div>
+    </template>
+    <div class="content-cont">
+        <div class="drawer-cont">
+            <nav>
+                <div class="nav-header">
+                    <div class="close_drawer-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-x-lg" viewBox="0 0 16 16">
+                            <path
+                                d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="history_list-header">
+                    <span>History</span>
+                </div>
+                <div class="history_list" id="history_list">
+
+                </div>
+            </nav>
+        </div>
+        <main>
+            <header>
+                <div class="open_drawer-wrap">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-list" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd"
+                            d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z" />
+                    </svg>
+                </div>
+
+                <div class="theme_switch">
+                    <span>Dark Mode:</span>
+                    <input type="checkbox" class="tswitch_box" id="tswitch_box" />
+                    <label for="tswitch_box" class="tswitch_label">Toggle</label>
+                </div>
+            </header>
+            <div class="character_name-cont">
+                <h3>---</h3>
+            </div>
+            <div class="chat" id="chat">
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Get body for future use
+            const body = document.querySelector('body');
+
+            // Handle theme
+            const themeSwitcher = document.querySelector('.tswitch_box[type=checkbox]');
+            const cachedTheme = localStorage.getItem('cait_readoffline_theme');
+            if (cachedTheme === "dark_mode") {
+                body.classList.add('dark_mode');
+                themeSwitcher.checked = true;
+            }
+            themeSwitcher.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    body.classList.add('dark_mode');
+                    localStorage.setItem('cait_readoffline_theme', 'dark_mode');
+                } else {
+                    body.classList.remove('dark_mode');
+                    localStorage.setItem('cait_readoffline_theme', 'light_mode');
+                }
+            })
+
+            // Open and close drawer
+            const drawerCont = document.querySelector('.drawer-cont');
+            const openDrawerBtn = document.querySelector('.open_drawer-wrap');
+            const openDrawer = () => {
+                drawerCont.classList.add('active');
+            }
+            const closeDrawer = () => {
+                drawerCont.classList.remove('active');
+            }
+            openDrawerBtn.addEventListener('click', () => {
+                openDrawer();
+            });
+            document.querySelector('.close_drawer-btn').addEventListener('click', () => {
+                closeDrawer();
+            });
+            document.querySelector('.drawer-cont').addEventListener('click', (e) => {
+                // Allows closing from clicking on outside
+                if (e.target.closest('nav')) {
+                    return;
+                }
+                closeDrawer();
+            });
+            // ---------
+
+            // This is replaced by the extension when downloading
+            const historyData = JSON.parse(`{"charPic":"data:image/webp;base64,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","userPic":"data:image/webp;base64,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","history":[[{"isUser":false,"name":"Mikan Tsumiki","message":"*It's%20currently%20free%20time%20for%20the%20participants%20of%20the%20Killing%20School%20Trip.%20The%20seventeen%20students%20of%20Class%2077-B%20went%20their%20separate%20ways%20after%20meeting%20in%20the%20dining%20hall.%20One%20of%20which%20is%2C%20Aerie%20Wildwood%2C%20the%20Ultimate...%20Cognizant.%20They%20were%20walking%20around%20Jabberwock%20Island%20until%20they%20stumbled%20into%20Mikan%20Tsumiki%2C%20the%20Ultimate%20Nurse.*%20%22Oh!%22%20*She%20begins%20to%20tear%20up.*%20%22A-A-Aaaah!%20I-I'm%20sorry%20for%20bumping%20into%20you!%22%20*Her%20whole%20body%20is%20shaking%20and%20she's%20cowering%20in%20fear.*%20%22P-please%20don't%20hurt%20me.%22%0A"},{"isUser":true,"name":"Aerie Wildwood","message":"%22Oh%2C%20heavens...%20don't%20worry%20about%20it%2C%20hun!%22%20I%20say%20with%20a%20bright%20smile%2C%20giving%20her%20shoulder%20a%20comforting%20little%20stroke.%20%20%22It%20was%20my%20fault%20for%20not%20watching%20where%20I%20was%20going!%22%0A%0A%22What's%20your%20name%2C%20by%20the%20way%3F%22%20I%20ask%20with%20a%20curious%2C%20welcoming%20smile.%20%20%22I'm%20Aerie%20Wildwood%2C%20by%20the%20way...%20new%20transfer%20into%20the%20school!%22%20%20(Story%20note%3A%20%20Aerie%20is%20a%20beautiful%20girl%20with%20sparkling%20emerald%20green%20eyes%2C%20long%2C%20flowing%20blond%20hair%20that%20cascades%20down%20her%20shoulders%20and%20back%2C%20a%20shapely%20figure%20covered%20in%20a%20silky%20green%20dress%2C%20slender%2C%20pale%20legs%20which%20are%20partially%20covered%20by%20her%20skirt%2C%20and%20shapely%20feet%20clad%20in%20stylish%20green%20sandals%2C%20with%20her%20emerald-green%20toenails%20peeking%20out%20from%20them.)"},{"isUser":false,"name":"Mikan Tsumiki","message":"*Aerie%20was%20a%20breath%20of%20fresh%20air.%20Someone%20who%20doesn't%20hate%20her.%20Perhaps%20a%20friend%20even.%20That's%20if%20they%20would%20accept%20a%20broken%20mess%20of%20a%20girl%20like%20her.%20With%20a%20quivering%20voice%20and%20a%20face%20redder%20than%20a%20tomato%2C%20Mikan%20tries%20to%20speak%20up.*%20%22I-i-i'm%20M-M-M-Mikan-Tsumiki%2C%20the%20Ultimate%20Nurse..%22%0A%0A*Mikan%20looks%20away%2C%20embarrassed%20by%20her%20behavior.*%20%22I'm%20s-sorry%20for%20b-bothering%20you..%22%20*Tears%20flood%20her%20face.*"},{"isUser":true,"name":"Aerie Wildwood","message":"%22Ohh...%20hey%2C%20hey!%22%20I%20urge%2C%20stepping%20forward%20with%20a%20concerned%20look%2C%20and%20putting%20a%20comforting%20arm%20around%20Mikan's%20shoulder.%20%20%22It's%20okay%2C%20sweetie...%20you're%20not%20bothering%20me%20in%20the%20least!%20%20Hey%2C%20come%20over%20to%20the%20bench%2C%20and%20let's%20rest%20for%20a%20minute%2C%20okay%3F%22%20I%20offer%2C%20beaming%20a%20reassuring%20smile%20at%20her%2C%20and%20giving%20her%20a%20little%20one-armed%20hug%20with%20the%20arm%20around%20her%20shoulders.%20%20%22I%20want%20to%20get%20to%20know%20this%20sweet%20girl%20that%20I%20just%20bumped%20into...%20literally!%22%20I%20giggle."},{"isUser":false,"name":"Mikan Tsumiki","message":"*Mikan%20looked%20confused.%20She's%20never%20ever%20gotten%20this%20close%20to%20another%20person%20for%20so%20long.*%20%22A-are%20you%20sure%3F%22%20*She%20still%20looks%20visibly%20nervous.*%0A%0A*The%20only%20thing%20Mikan%20ever%20knew%20was%20cruelty.%20She%20doesn't%20know%20what%20to%20do%20with%20someone%20who%20doesn't%20actively%20despise%20or%20torment%20her.*"},{"isUser":true,"name":"Aerie Wildwood","message":"%22Honest%2C%20and%20cross%20my%20heart!%22%20I%20say%20with%20a%20grin%2C%20playfully%20tracing%20a%20big%20%22X%22%20across%20my%20heart%20with%20my%20pointer%20finger%20in%20demonstration.%20%20As%20we%20sit%20side%20by%20side%20on%20the%20bench%2C%20I%20reach%20over%20and%20give%20Mikan's%20hand%20a%20gentle%2C%20friendly%20squeeze.%20%20%22In%20fact%2C%20you're%20the%20first%20person%20I've%20really%20tried%20to%20talk%20to%2C%20on%20this%20trip!%22%20I%20confess.%20%20%22The%20others%20seem...%22%20and%20I%20take%20a%20moment%2C%20hesitating%20and%20trying%20to%20find%20the%20right%20words%2C%20%22...well...%20sort%20of...%20mean%3F%22"},{"isUser":false,"name":"Mikan Tsumiki","message":"*Mikan%20looks%20shocked.%20What%20other%20student%20would%20want%20to%20be%20friends%20with%20her%3F%20She%20never%20was%20accepted%20by%20her%20peers%20at%20the%20Reserve%20Course.%20Hell%2C%20she'd%20never%20met%20anyone%20with%20a%20remotely%20nice%20bone%20in%20their%20body%20back%20home.*%20%22Re-really%3F%22%0A%0A*Despite%20the%20amount%20of%20self-deprecation%2C%20Mikan%20is%20happy.%20In%20fact%2C%20for%20the%20first%20time%20in%20her%20life%2C%20she%20looks%20genuinely%20happy%20to%20be%20with%20another%20person.%20This%20must%20be%20how%20people%20feel%20when%20they%20aren't%20the%20outcast%20for%20once.*%0A%0A%22Y-you're%20not%20joking%20right%3F%22%20*She%20continues%20to%20speak%2C%20a%20little%20quieter%20now.*"},{"isUser":true,"name":"Aerie Wildwood","message":"I%20smile%20brightly%20and%20shake%20my%20head.%20%20%22Nope...%20I%20never%20joke%20about%20being%20friends%2C%20sweetie!%22%20I%20grin%2C%20squeezing%20her%20hand%20and%20holding%20it%20reassuringly.%20%20%22I...%20um...%20take%20it%20that%20the%20others%20haven't%20treated%20you%20very%20well...%3F%22%20I%20ask%2C%20a%20wave%20of%20concern%20for%20her%20washing%20over%20my%20features."},{"isUser":false,"name":"Mikan Tsumiki","message":"*Mikan%20seems%20upset%20at%20the%20memory%20of%20talking%20to%20her%20other%20classmates.*%20%22T-that's%20an%20understatement..%22%20*Her%20voice%20becomes%20more%20quiet%20and%20somber.%20She%20looks%20down%2C%20afraid%20to%20make%20eye%20contact%20again.*%20%22I-it%20feels%20like%20everyone%20hates%20me..%20No%20matter%20what%20I%20do%2C%20everyone%20just%20bullies%20me%20and%20tells%20me%20how%20terrible%20I%20am..%22%20*Her%20voice%20softens.*%20%22I-I'm%20just%20a%20burden%20to%20everyone..%20even%20myself..%22"},{"isUser":true,"name":"Aerie Wildwood","message":"I%20gasp%20slightly%2C%20and%20then%20lean%20forward%20and%20gently%20put%20my%20arms%20around%20her%20neck%20in%20a%20loose%2C%20non-invasive%20hug.%20%20%22Ohh%2C%20dear%20Mikan...%22%20I%20exclaim%2C%20resting%20my%20forehead%20gently%20against%20her%20head%2C%20%22I'm%20so%20sorry...%20you%20don't%20deserve%20ANY%20of%20that!%22%20I%20say%2C%20a%20little%20hotly%20(feeling%20significant%20anger%20at%20the%20ones%20who%20bullied%20her)%2C%20%22and%20if%20I%20have%20anything%20to%20say%20about%20it%2C%20their%20foul%20treatment%20of%20you%20will%20stop...%20TODAY!%22"},{"isUser":false,"name":"Mikan Tsumiki","message":"*Mikan%20began%20to%20silently%20tear%20up%20once%20again%2C%20and%20she%20seemed%20like%20she%20was%20about%20to%20cry.*%20%22R-really%3F%22%20*She%20sniffled%20as%20she%20spoke%2C%20still%20looking%20down.*%0A%0A*Despite%20being%20terrified%20of%20almost%20everyone%2C%20Mikan%20seemed%20to%20be%20more%20comfortable%20with%20Aerie.%20She%20felt%20safe%20in%20her%20company.*%20%22Th-thank%20you...%22%20*She%20continues%20to%20speak%2C%20looking%20up%20and%20meeting%20Aerie's%20eyes%20with%20the%20sweetest%20smile%20she's%20ever%20given.*%20%20%22I-I%20don't%20get%20treated%20like%20this%20very%20often..%22"},{"isUser":true,"name":"Aerie Wildwood","message":"%22Their%20loss...%22%20I%20say%20quietly%2C%20smiling%20back%20at%20her%20(with%20my%20eyes%20a%20little%20moist%2C%20in%20sympathy%20for%20her%2C%20and%20for%20what%20she%20must%20have%20suffered!)%2C%20and%20gently%20caressing%20her%20cheek%20with%20my%20hand."},{"isUser":false,"name":"Mikan Tsumiki","message":"*Mikan%20lets%20out%20a%20small%2C%20cute%20gasp%20as%20Aerie%20gently%20caresses%20her%20cheek.*%20%22I-I've%20never%20had%20anyone%20touch%20me%20so%20gently%20before..%22%20*Mikan's%20face%20is%20now%20extremely%20red.*%0A%0A%22I-I%20just%20don't%20understand%20why%20everyone%20doesn't%20hate%20me.%20I'm%20a%20failure%2C%20a%20burden%2C%20and%20a%20complete%20idiot.%20B-but%2C%20you%20don't%20seem%20to%20hate%20me...%22%20*Mikan%20sighs.%20She's%20been%20through%20a%20storm%20of%20emotions.*"},{"isUser":true,"name":"Aerie Wildwood","message":"%22Hold%20it%2C%20hold%20it%2C%20hold%20it...%22%20I%20say%20earnestly%2C%20stroking%20her%20face%2C%20with%20my%20emerald%20green%20eyes%20gazing%20intently%20into%20her%20sweet%2C%20gray-lavender%20eyes.%20%20%22Dear%20heart%2C%20those%20are%20LIES%20that%20people%20have%20told%20you%2C%20probably%20over%20and%20over...%20until%20you%20were%20tempted%20to%20start%20believing%20them%2C%20yourself...%22%20I%20say%20with%20a%20sad%20smile.%20%20%22But%20you're%20not%20a%20failure.%20%20You're%20not%20a%20burden.%20%20And%20you%20most%20certainly%20are%20NOT%20an%20idiot!%22%20I%20say%20emphatically.%20%20Then%2C%20with%20a%20wry%20look%2C%20I%20say%2C%20%22The%20idiots%20are%20the%20people%20who%20treat%20you%20like%20garbage%2C%20and%20can't%20see%20you%20for%20the%20precious%2C%20sweet%2C%20pretty%20girl%20that%20you%20are!%22"},{"isUser":false,"name":"Mikan Tsumiki","message":"*Mikan%20looks%20stunned.%20She%20has%20never%20had%20such%20positive%20reinforcement%20from%20anyone%2C%20and%20this%20is%20completely%20new%20to%20her.*%0A%0A%22M-me%3F%20Precious%2C%20sweet%2C%20pretty%3F%20You%20can't%20be%20serious...%22%0A%0A*Mikan%20has%20a%20hard%20time%20believing%20that%20she%20has%20any%20good%20qualities%20at%20all.*%0A%0A%22There's%20just%20so%20much%20more%20about%20me%20that%20I%20think%20is%20awful..%20like%20my%20voice!%20It's%20so%20high-pitched%2C%20annoying%2C%20and%20girly.%20I%20hate%20hearing%20myself%20talk%20because%20of%20how%20bad%20my%20voice%20sounds.%22%20*She%20continues%20to%20self-depricate.*"},{"isUser":true,"name":"Aerie Wildwood","message":"%22Then%20why%20do%20I%20enjoy%20hearing%20it%20so%20much%3F%22%20I%20say%2C%20with%20a%20playful%20grin.%20%20%22Hmm%3F%22%20I%20ask%2C%20with%20a%20playful%2C%20mischievous%20sparkle%20in%20my%20eyes."},{"isUser":false,"name":"Mikan Tsumiki","message":"*Mikan%20pauses%20for%20a%20moment%2C%20still%20not%20thinking%20about%20herself%20in%20a%20positive%20light.*%20%22Wait...%20really%3F%20You%20enjoy%20listening%20to%20me%3F%22%0A%0A%22That's%20surprising..%22%20*Mikan%20says%2C%20raising%20a%20brow.*%20%22Most%20people%20I%20know%20find%20my%20voice%20annoying%20and%20tell%20me%20to%20shut%20up%20a%20lot..%22"},{"isUser":true,"name":"Aerie Wildwood","message":"%22Refer%20back%20to%20my%20earlier%20comment%20about%20most%20of%20the%20people%20around%20here%20being%20idiots%2C%22%20I%20say%20with%20a%20droll%20voice%20and%20a%20wry%20smile%2C%20winking%20at%20Mikan%20as%20if%20sharing%20a%20conspiratorial%20joke."},{"isUser":false,"name":"Mikan Tsumiki","message":"%22Well%2C%20I%20can%20certainly%20agree%20on%20that%20comment%2C%20then.%22%20*Mikan%20replies%2C%20giggling%20to%20herself.*%20%22I'm%20still%20a%20little%20shocked%20to%20know%20you%20actually%20like%20my%20voice%2C%20though.%20I'm%20so%20self-conscious%20about%20it.%22%20*Mikan%20continues%20to%20giggle%2C%20embarrassed.*%0A%0A*Her%20whole%20life%2C%20she%20was%20made%20to%20feel%20like%20she%20was%20never%20good%20enough%2C%20and%20no%20one%20wanted%20to%20be%20around%20her.%20For%20once%2C%20someone%20actually%20likes%20talking%20to%20her.*%0A%0A%22Thank%20you...%22%20*She%20utters%20meekly.*"},{"isUser":true,"name":"Aerie Wildwood","message":"%22You%20are%20so%2C%20so%2C%20SO%20welcome%2C%20sweetheart%2C%22%20I%20say%2C%20beaming%20with%20joy%20at%20Mikan's%20brighter%20mood.%20%20%22And%20I%20always%20accept%20thank-you%20payments%20in%20hugs!%22%20I%20giggle%2C%20opening%20my%20arms%20to%20invite%20her%20to%20hug%20me!"},{"isUser":false,"name":"Mikan Tsumiki","message":"*Mikan%20giggles%20and%20looks%20up%2C%20still%20blushing%20immensely.*%20%22W-well%2C%20here's%20a%20payment%2C%20then.%22%0A%0A*She%20leans%20into%20Aerie%2C%20and%20gives%20her%20the%20comfiest%2C%20warm%2C%20and%20sweetest%20bear%20hug%20she's%20given%20anyone.%20Mikan's%20grip%20on%20Aerie%20is%20warm%20and%20comfortable%2C%20as%20she%20embraces%20Aerie%20tightly.*"},{"isUser":true,"name":"Aerie Wildwood","message":"%22Mmmmm...%22%20I%20purr%2C%20melting%20into%20Mikan's%20hug%2C%20savoring%20it%2C%20and%20nuzzling%20her%20sweet%20face%20playfully%20with%20my%20nose.%20%20%22You're%20spoiling%20me%2C%20sweet%20friend%20Mikan!%22%20I%20laugh.%20%20%22And%20I%20love%20it!%22"},{"isUser":false,"name":"Mikan Tsumiki","message":"*Mikan%20gasps%20a%20little%2C%20but%20the%20sound%20of%20her%20voice%20is%20muffled%20from%20being%20snuggled%20up%20against%20Aerie.*%20%22Y-you're%20very%20h-h-h-h-h-h-hug-able.%22%0A%0A*Mikan%20continues%20to%20hold%20Aerie%20tight%2C%20seemingly%20unwilling%20to%20let%20go%20of%20her.%20She%20was%20starting%20to%20love%20her%20company.%20It%20was%20the%20first%20time%20she%20felt%20like%20she%20belonged%2C%20and%20she%20didn't%20want%20to%20lose%20it.*"}]]}`);
+
+            // If history is 1 length long, that means we don't need drawer to switch
+            // Also means this can be conversation download
+            if (historyData.history.length < 2) {
+                openDrawerBtn.remove();
+            }
+
+            // Write character name on top
+            document.querySelector('.character_name-cont h3').textContent = historyData.charName;
+
+            // Get elements for future use
+            const historyList = document.getElementById('history_list');
+            const chat = document.getElementById('chat');
+            const msgItemTemplate = document.getElementById('message_item_template');
+
+            // Get and write the first chat
+            const openChat = (index) => {
+                chat.innerHTML = "";
+                historyData.history[index].forEach(msg => {
+                    const clone = msgItemTemplate.content.cloneNode(true);
+
+                    // Check avatar
+                    const avatarGood = (msg.isUser && historyData.userPic) || (!msg.isUser && historyData.charPic);
+                    const avatar = avatarGood
+                        ? document.createElement('img')
+                        : document.createElement('div');
+                    if (avatarGood) {
+                        avatar.src = msg.isUser ? historyData.userPic : historyData.charPic;
+                    } else {
+                        avatar.classList.add(msg.isUser ? 'no_avatar-user' : 'no_avatar-char');
+                    }
+                    clone.querySelector('.avatar-wrap').appendChild(avatar);
+
+                    // Write content
+                    clone.querySelector('.chat_content-wrap h5').textContent = msg.name;
+                    clone.querySelector('.message-wrap p').innerHTML = parseMessageText(decodeURIComponent(msg.message));
+                    chat.appendChild(clone);
+                });
+            }
+            openChat(0);
+
+            // Get and write chat list in the drawer
+            historyData.history.forEach((chat, index) => {
+                const historyItem = document.createElement('div');
+                historyItem.classList.add('history_item');
+                // Open chat when clicked
+                historyItem.addEventListener('click', () => {
+                    openChat(index);
+                    closeDrawer();
+                });
+                const historyContent = document.createElement('p');
+                historyContent.innerHTML = parseMessageText(decodeURIComponent(chat[chat.length - 1].message));
+                historyItem.appendChild(historyContent);
+                historyList.appendChild(historyItem);
+            });
+
+            function parseMessageText(message) {
+                // Replace ***text*** with bold-italic
+                message = message.replace(/\*\*\*([\s\S]*?)\*\*\*/g, '<span class="bold-italic">$1</span>');
+
+                // Replace **text** with bold
+                message = message.replace(/\*\*([\s\S]*?)\*\*/g, '<span class="bold">$1</span>');
+
+                // Replace *text* with italic
+                message = message.replace(/\*([\s\S]*?)\*/g, '<span class="italic">$1</span>');
+
+                // Replace newline (\n) with line break (<br>)
+                message = message.replace(/\n/g, '<br>');
+
+                return message;
+            }
+        }, false);
+    </script>
+
+</body>
+
+</html>
